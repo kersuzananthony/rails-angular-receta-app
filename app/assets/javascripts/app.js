@@ -1,63 +1,50 @@
 'use strict';
 
-(function() {
+(function (angular) {
 
     var receta = angular.module('receta', [
         'controllers',
+        'services',
         'templates',
-        'ngRoute'
+        'ngRoute',
+        'ngResource',
+        'angular-flash.service',
+        'angular-flash.flash-alert-directive'
     ]);
 
-    var recipes = [
-        {
-            id: 1,
-            name: 'Baked Potato w/ Cheese'
-        },
-        {
-            id: 2,
-            name: 'Garlic Mashed Potatoes',
-        },
-        {
-            id: 3,
-            name: 'Potatoes Au Gratin',
-        },
-        {
-            id: 4,
-            name: 'Baked Brussel Sprouts',
-        }
-    ]; // Hard code recipes for now
-
-    receta.config(['$routeProvider', function($routeProvider) {
-
-        $routeProvider.when('/', {
-            templateUrl: "index.html",
-            controller: "RecipesController"
-        });
-
+    receta.config(['$controllerProvider', function($controllerProvider) {
+        $controllerProvider.allowGlobals();
     }]);
+
+    receta.config([
+        '$routeProvider',
+        'flashProvider',
+        function ($routeProvider, flashProvider) {
+
+            $routeProvider
+                .when('/', {
+                    templateUrl: "index.html",
+                    controller: "RecipesController"
+                })
+
+                .when('/recipes/new', {
+                    templateUrl: "form.html",
+                    controller: "RecipeController"
+                })
+
+                .when('/recipes/:recipeId', {
+                    templateUrl: "show.html",
+                    controller: "RecipeController"
+                })
+
+                .when("/recipes/:recipeId/edit", {
+                    templateUrl: "form.html",
+                    controller: "RecipeController"
+                });
+        }]);
+
+    var services = angular.module('services', []);
 
     var controllers = angular.module('controllers', []);
-    controllers.controller("RecipesController", [
-        "$scope",
-        "$routeParams",
-        "$location",
-        function($scope, $routeParams, $location) {
 
-            $scope.search = function(keywords) {
-                $location.path("/").search('keywords',keywords);
-            };
-
-            console.log("Params", $routeParams);
-
-            if ($routeParams.keywords) {
-                var keywords = $routeParams.keywords.toLowerCase();
-                console.log(keywords);
-                $scope.recipes = recipes.filter(function(r) {
-                   return r.name.toLowerCase().indexOf(keywords) != -1;
-                });
-            } else {
-                $scope.recipes = [];
-            }
-    }]);
-
-})();
+})(window.angular);
